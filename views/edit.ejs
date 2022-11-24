@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+
+<%- include ('nav.html') %>
+<h1>edit page</h1>
+<div>
+<!--    <form action="/add?_method=PUT" method="POST"></form>-->
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">할일</span>
+            <input value=<%= post.title%> name="title" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon2">기한</span>
+            <input value="<%= post.date%>" name="date" type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+        </div>
+        <button class="btn btn-outlxine-success edit" type="submit">수정</button>
+</div>
+</body>
+<script>
+    $('.edit').click(function (e) {
+        const post_id=parseInt(<%= post._id%>);
+
+        const title = $('input[name=title]').val();
+        const date = $('input[name=date]').val();
+
+        console.log('title',title);
+        console.log('date',date);
+
+        $.ajax({
+            method: 'patch',
+            url: '/edit/'+post_id,
+            data: {title:title,
+                   date:date},
+        }).done(function (rst) {
+            console.log('수정 성공했어염');
+        }).fail(function (rst){
+            console.log('수정 실패했어염');
+        })
+    });
+</script>
+</html>
