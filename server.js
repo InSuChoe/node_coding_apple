@@ -43,13 +43,7 @@ app.get('/list', function (req, res) {
 
 });
 
-app.delete('/delete', (req, res) => {
-    req.body._id = parseInt(req.body._id);
-    db.collection('post').deleteOne(req.body, (err, rst) => {
-        console.log('삭제완료');
-        res.status(200).send({message: '성공했습니다.'});
-    });
-});
+
 
 app.get('/detail/:id', function (req, res) {
     const id = parseInt(req.params.id);
@@ -127,14 +121,42 @@ app.get('/login',(req,res)=>{
 
 app.post('/login',
     passport.authenticate('local',
-        {failureRedirect : '/fail'
-    },(req, res)=>{res.redirect('/')}
-    ));
+        {failureRedirect : '/fail'})
+    ,(req, res)=>{res.redirect('/')}
+    );
 
 app.get('/my_page', areYouLogging,(req,res)=>{
     console.log(req.user);
     res.render('my_page.ejs',{user: req.user});
 });
+
+const multer=require('multer')
+
+const storage = multer.diskStorage({
+    destination : (req, file, cb) =>{
+        cb(null, './public/image');
+    },
+    filename    : (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+});
+
+const upload  = multer({storage : storage});
+
+app.get('/upload',(req, res)=>{
+    res.render('upload.ejs');
+});
+
+app.post('/upload'
+    , upload.array('profile', 10)
+    , (req, res)=>{
+res.send("upload completed");
+});
+
+app.get('/image/:image_name', (req, res)=>{
+    const image_name = req.params.image_name;
+    res.sendFile(__dirname + '/public/image/' + image_name);
+})
 
 app.get('/search', (req, res)=>{
     let value = req.query.value;
@@ -197,3 +219,32 @@ passport.deserializeUser((id, done)=>{
     });
 });
 
+app.delete('/delete', (req, res) => {
+    req.body._id = parseInt(req.body._id);
+    let id = {id : req.body._id, writer: req.user._id };
+    db.collection('post').deleteOne(id, (err, rst) => {
+        console.log('삭제완료');
+        if(err) console.log(err);
+        res.status(200).send({message: '성공했습니다.'});
+    });
+});
+
+
+app.use('/shop',require('./routes/shop.js'));
+app.use('/board/sub',require('./routes/board.js'));
+
+const { ObjectId }= require('mongodb');
+
+app.post('/chatroom', areYouLogging, (req, res)=>{
+    console.log('objectId',ObjectId);
+    let 당한사람id = ObjectId(req.body.당한사람id);
+    var 저장할것 ={
+        title:'무슨채팅방',
+        member:[당한사람id, req.user._id],
+        date: new Date()
+    }
+
+   db.collection('chatroom').insertOne(저장할것).then((res)=>{
+
+   })
+})
